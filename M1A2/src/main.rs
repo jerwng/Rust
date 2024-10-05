@@ -62,7 +62,7 @@ fn main() {
    
     let max_number = loop {
     	if j >= nums.len() {
-    		break cur_largest;
+    	    break cur_largest;
     	}
 
         if nums[j] > cur_largest {
