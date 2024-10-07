@@ -19,13 +19,11 @@ fn main() {
     for num in nums.iter() {
         println!("Current Number: {}", *num);
 
-        let even_odd_string;
-
-        if is_even(*num) {
-            even_odd_string = "even"
+        let even_odd_string = if is_even(*num) {
+            "even" 
         } else {
-            even_odd_string = "odd"
-        }
+            "odd"
+        };
 
         println!("{} is {}", *num, even_odd_string);
         
