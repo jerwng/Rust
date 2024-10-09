@@ -34,6 +34,7 @@ fn main() {
         attempts += 1;
 
         if result == 0 {
+            println!("Correctly guessed {}", guess);
             break;
         }
 
