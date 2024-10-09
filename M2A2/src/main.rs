@@ -4,17 +4,17 @@ fn most_frequent_word(text: &str) -> (String, usize) {
     let mut most_frequent_word = words[0];
     let mut most_frequent_word_count = 0;
 
-    for word in &words {
+    for word in words.iter() {
         let mut word_frequency_counter = 0;
 
-        for other_word in &words {
+        for other_word in words.iter() {
             if *word == *other_word {
                 word_frequency_counter += 1;
             }
         }
 
         if word_frequency_counter > most_frequent_word_count {
-            most_frequent_word = word;
+            most_frequent_word = *word;
             most_frequent_word_count = word_frequency_counter;
         }
     }
