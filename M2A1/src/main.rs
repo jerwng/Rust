@@ -1,7 +1,6 @@
 fn sum_with_step(total: &mut i32, low: i32, high: i32, step: i32) {
 
     let mut cur = low;
-
     
     // Support traversing in positive and negative steps, since step size is signed
     while (step > 0 && cur <= high) || (step < 0 && cur >= high) {
