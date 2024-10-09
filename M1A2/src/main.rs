@@ -17,7 +17,7 @@ fn main() {
     For loop to do FizzBuzz on the array
     */
     for num in nums.iter() {
-        println!("Current Number: {}", *num);
+        println!("Current Number: {}", num);
 
         let even_odd_string = if is_even(*num) {
             "even" 
@@ -58,9 +58,9 @@ fn main() {
     let mut j = 0;
     let mut cur_largest = i32::MIN;
    
-    let max_number = loop {
+    loop {
     	if j >= nums.len() {
-    	    break cur_largest;
+    	    break;
     	}
 
         if nums[j] > cur_largest {
@@ -70,5 +70,5 @@ fn main() {
         j += 1;
     };
 
-    println!("Largest number in the array is: {}", max_number);
+    println!("Largest number in the array is: {}", cur_largest);
 }
