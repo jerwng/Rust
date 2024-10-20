@@ -27,9 +27,17 @@ impl MLFQ {
 
     // Exercise 1: Queue Management
     pub fn add_process(&mut self, process: Process) {
-        // TODO: Implement this function
         // Add the process to the appropriate queue based on its priority
         // Ensure the priority is within the valid range (0 to num_levels - 1)
+
+        let mut priority: usize = process.priority;
+
+        // Out of range priorities gets placed in lowest priority queue
+        if priority > self.num_levels - 1 {
+            priority = self.num_levels - 1;
+        }
+
+        self.queues[priority].push(process);
     }
 
     // Exercise 2: Process Execution
