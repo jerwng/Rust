@@ -1,4 +1,5 @@
 // src/mlfq.rs
+use std::collections::VecDeque;
 
 #[derive(Clone)]
 pub struct Process {
@@ -9,7 +10,7 @@ pub struct Process {
 }
 
 pub struct MLFQ {
-    queues: Vec<Vec<Process>>,
+    queues: Vec<VecDeque<Process>>,
     num_levels: usize,
     time_quanta: Vec<u32>,
     current_time: u32,
@@ -18,7 +19,7 @@ pub struct MLFQ {
 impl MLFQ {
     pub fn new(num_levels: usize, time_quanta: Vec<u32>) -> Self {
         MLFQ {
-            queues: vec![Vec::new(); num_levels],
+            queues: vec![VecDeque::new(); num_levels],
             num_levels,
             time_quanta,
             current_time: 0,
@@ -37,7 +38,7 @@ impl MLFQ {
             priority = self.num_levels - 1;
         }
 
-        self.queues[priority].push(process);
+        self.queues[priority].push_back(process);
     }
 
     // Exercise 2: Process Execution
@@ -46,6 +47,36 @@ impl MLFQ {
         // Execute the process for its time quantum or until completion
         // Update remaining_time, total_executed_time, and current_time
         // Move the process to a lower priority queue if it doesn't complete
+        let queue = &mut self.queues[queue_index];
+        let queue_time_quanta = self.time_quanta[queue_index];
+
+        if queue.is_empty() {
+            return;
+        }
+
+        // Safe to .unwrap() here since queue is verified to have a Process
+        let mut process = queue.pop_front().unwrap();
+
+        // Process is completed during this run
+        if process.remaining_time <= queue_time_quanta {
+            process.total_executed_time += process.remaining_time;
+            process.remaining_time = 0;
+            return;
+        }
+
+        // Process is not completed at the end of time quanta, move to lower priority
+        process.total_executed_time += queue_time_quanta;
+        process.remaining_time -= queue_time_quanta;
+
+        // Move process to lower priority if it is not already in the lowest priority queue
+        let process_next_priority = if queue_index + 1 < self.num_levels {
+            queue_index + 1
+        } else {
+            queue_index
+        };
+
+        process.priority = process_next_priority;
+        self.queues[process_next_priority].push_back(process);
     }
 
     // Exercise 3: Priority Boost
