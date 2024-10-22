@@ -1,5 +1,4 @@
 // src/mlfq.rs
-use std::collections::VecDeque;
 
 #[derive(Clone)]
 pub struct Process {
@@ -10,7 +9,7 @@ pub struct Process {
 }
 
 pub struct MLFQ {
-    queues: Vec<VecDeque<Process>>,
+    queues: Vec<Vec<Process>>,
     num_levels: usize,
     time_quanta: Vec<u32>,
     current_time: u32,
@@ -19,7 +18,7 @@ pub struct MLFQ {
 impl MLFQ {
     pub fn new(num_levels: usize, time_quanta: Vec<u32>) -> Self {
         MLFQ {
-            queues: vec![VecDeque::new(); num_levels],
+            queues: vec![Vec::new(); num_levels],
             num_levels,
             time_quanta,
             current_time: 0,
@@ -38,7 +37,7 @@ impl MLFQ {
             priority = self.num_levels - 1;
         }
 
-        self.queues[priority].push_back(process);
+        self.queues[priority].push(process);
     }
 
     // Exercise 2: Process Execution
@@ -55,7 +54,7 @@ impl MLFQ {
         }
 
         // Safe to .unwrap() here since queue is verified to have a Process
-        let mut process = queue.pop_front().unwrap();
+        let mut process = queue.remove(0);
 
         // Process is completed during this run
         if process.remaining_time <= queue_time_quanta {
@@ -76,7 +75,7 @@ impl MLFQ {
         process.remaining_time -= queue_time_quanta;
 
         process.priority = process_next_priority;
-        self.queues[process_next_priority].push_back(process);
+        self.queues[process_next_priority].push(process);
     }
 
     // Exercise 3: Priority Boost
