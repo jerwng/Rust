@@ -20,4 +20,6 @@ fn main() {
     mlfq.add_process(process4);
 
     mlfq.execute_process(2);
+
+    mlfq.priority_boost();
 }
