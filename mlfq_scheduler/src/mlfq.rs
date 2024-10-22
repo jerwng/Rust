@@ -80,9 +80,14 @@ impl MLFQ {
 
     // Exercise 3: Priority Boost
     pub fn priority_boost(&mut self) {
-        // TODO: Implement this function
         // Move all processes to the highest priority queue
         // Reset the priority of all processes to 0
+        for i in 1..self.num_levels {
+            while !self.queues[i].is_empty() {
+                let process = self.queues[i].remove(0);
+                self.queues[0].push(process);
+            }
+        }
     }
 
     // Simulate time passing and trigger a boost if needed
