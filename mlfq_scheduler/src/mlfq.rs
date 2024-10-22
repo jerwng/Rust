@@ -43,10 +43,10 @@ impl MLFQ {
 
     // Exercise 2: Process Execution
     pub fn execute_process(&mut self, queue_index: usize) {
-        // TODO: Implement this function
         // Execute the process for its time quantum or until completion
         // Update remaining_time, total_executed_time, and current_time
         // Move the process to a lower priority queue if it doesn't complete
+
         let queue = &mut self.queues[queue_index];
         let queue_time_quanta = self.time_quanta[queue_index];
 
@@ -63,17 +63,17 @@ impl MLFQ {
             process.remaining_time = 0;
             return;
         }
-
-        // Process is not completed at the end of time quanta, move to lower priority
-        process.total_executed_time += queue_time_quanta;
-        process.remaining_time -= queue_time_quanta;
-
-        // Move process to lower priority if it is not already in the lowest priority queue
+        
+        // Process is not completed at the end of time quanta, move to lower priority 
+        // if it is not already in the lowest priority queue
         let process_next_priority = if queue_index + 1 < self.num_levels {
             queue_index + 1
         } else {
             queue_index
         };
+
+        process.total_executed_time += queue_time_quanta;
+        process.remaining_time -= queue_time_quanta;
 
         process.priority = process_next_priority;
         self.queues[process_next_priority].push_back(process);
