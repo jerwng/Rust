@@ -84,7 +84,9 @@ impl MLFQ {
         // Reset the priority of all processes to 0
         for i in 1..self.num_levels {
             while !self.queues[i].is_empty() {
-                let process = self.queues[i].remove(0);
+                let mut process = self.queues[i].remove(0);
+                process.priority = 0;
+
                 self.queues[0].push(process);
             }
         }
@@ -135,6 +137,68 @@ mod tests {
         assert_eq!(mlfq.queues[1][0].total_executed_time, 2);
     }
 
+    /*
+    Process done executing should be removed from all queues
+    */
+    #[test]
+    fn test_execute_process_completion() {
+        let mut mlfq = MLFQ::new(2, vec![2, 4]);
+        mlfq.queues[0].push(Process { id: 1, priority: 0, remaining_time: 1, total_executed_time: 0 });
+
+        mlfq.execute_process(0);
+
+        assert_eq!(mlfq.queues[0].len(), 0);
+        assert_eq!(mlfq.queues[1].len(), 0);
+    }
+
+    /*
+    If the queue contains no processes, should do nothing
+    */
+    #[test]
+    fn test_execute_process_empty() {
+        let mut mlfq = MLFQ::new(2, vec![2, 4]);
+        mlfq.execute_process(0);
+
+        assert_eq!(mlfq.queues[0].len(), 0);
+        assert_eq!(mlfq.queues[1].len(), 0);
+    }
+
+    /*
+    Moving process to lower priority queue should also update the process'
+    priority value
+    */
+    #[test]
+    fn test_execute_process_updated_process_priority() {
+        let mut mlfq = MLFQ::new(2, vec![2, 4]);
+        mlfq.queues[0].push(Process { id: 1, priority: 0, remaining_time: 3, total_executed_time: 0 });
+    
+        mlfq.execute_process(0);
+
+        assert_eq!(mlfq.queues[0].len(), 0);
+        assert_eq!(mlfq.queues[1].len(), 1);
+        assert_eq!(mlfq.queues[1][0].priority, 1);
+    }
+
+    /*
+    Incompleted process in the lowest priority should remain in the queue, since
+    there isn't a lower priority queue to move the process to.
+    */
+    #[test]
+    fn test_execute_process_lowest_priority() {
+        let mut mlfq = MLFQ::new(2, vec![2, 4]);
+        mlfq.queues[1].push(Process { id: 1, priority: 1, remaining_time: 10, total_executed_time: 0 });
+
+        assert_eq!(mlfq.queues[1].len(), 1);
+        assert_eq!(mlfq.queues[1][0].priority, 1);
+    
+        mlfq.execute_process(1);
+
+        assert_eq!(mlfq.queues[1].len(), 1);
+        assert_eq!(mlfq.queues[1][0].priority, 1);
+        assert_eq!(mlfq.queues[1][0].remaining_time, 6);
+        assert_eq!(mlfq.queues[1][0].total_executed_time, 4);
+    }
+
     #[test]
     fn test_priority_boost() {
         let mut mlfq = MLFQ::new(3, vec![2, 4, 8]);
@@ -157,5 +221,36 @@ mod tests {
 
         assert_eq!(mlfq.queues[1].len(), 1);
         assert_eq!(mlfq.queues[0].len(), 0);
+    }
+
+    /*
+    Executing a priority boost while no processes are in lower priority queues
+    should not do anything
+    */
+    #[test]
+    fn test_priority_boost_none_boosted() {
+        let mut mlfq = MLFQ::new(3, vec![2, 4, 8]);
+        mlfq.queues[0].push(Process { id: 1, priority: 0, remaining_time: 10, total_executed_time: 0 });
+
+        mlfq.update_time(100); // Should trigger priority boost
+
+        assert_eq!(mlfq.queues[0].len(), 1);
+        assert_eq!(mlfq.queues[1].len(), 0);
+        assert_eq!(mlfq.queues[1].len(), 0);
+    }
+
+    /*
+    Process being priority boosted should have its priority value updated
+    */
+    #[test]
+    fn test_priority_boost_update_process_priority() {
+        let mut mlfq = MLFQ::new(3, vec![2, 4, 8]);
+        mlfq.queues[1].push(Process { id: 1, priority: 1, remaining_time: 10, total_executed_time: 0 });
+
+        assert_eq!(mlfq.queues[1][0].priority, 1);
+
+        mlfq.update_time(100); // Should trigger priority boost
+        assert_eq!(mlfq.queues[0][0].id, 1);
+        assert_eq!(mlfq.queues[0][0].priority, 0);
     }
 }
